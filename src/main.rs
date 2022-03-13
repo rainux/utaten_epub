@@ -1,5 +1,5 @@
 use anyhow::Result;
-use kuchiki::traits::TendrilSink;
+use kuchiki::{NodeRef, traits::TendrilSink};
 use std::fs::{self, File};
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -58,7 +58,28 @@ fn download_lyric(url: &str, song: &str) -> Result<()> {
     let body = reqwest::blocking::Client::new().get(url).send()?.text()?;
 
     let document = kuchiki::parse_html().one(body);
+    let lyric_title = extract_lyric_title(&document);
+    let lyric_data = extract_lyric_data(&document);
+    let lyric_body = extract_lyric_body(&document);
 
+    let article = document.select("article").unwrap().next().unwrap();
+    let article = article.as_node();
+    article.children().for_each(|c| c.detach());
+
+    article.append(lyric_title);
+    article.append(lyric_data);
+    article.append(lyric_body);
+
+    let mut html = Vec::new();
+    article.serialize(&mut html)?;
+
+    let filename = format!("lyrics/{}.html", song.replace(" / ", " - "));
+    fs::write(filename, html)?;
+
+    Ok(())
+}
+
+fn extract_lyric_title(document: &NodeRef) -> NodeRef {
     let lyric_title = document.select(".newLyricTitle").unwrap().next().unwrap();
     let lyric_title = lyric_title.as_node();
     // Remove "の歌詞" in title
@@ -69,7 +90,10 @@ fn download_lyric(url: &str, song: &str) -> Result<()> {
         .unwrap()
         .as_node()
         .detach();
+    lyric_title.to_owned()
+}
 
+fn extract_lyric_data(document: &NodeRef) -> NodeRef {
     let lyric_data = document.select(".lyricData").unwrap().next().unwrap();
     let lyric_data = lyric_data.as_node();
     // # Remove tags and action buttons
@@ -90,7 +114,10 @@ fn download_lyric(url: &str, song: &str) -> Result<()> {
                 *href = format!("https://utaten.com{}", href);
             }
         });
+    lyric_data.to_owned()
+}
 
+fn extract_lyric_body(document: &NodeRef) -> NodeRef {
     let lyric_body = document.select(".lyricBody").unwrap().next().unwrap();
     let lyric_body = lyric_body.as_node();
     // Remove romaji part
@@ -101,21 +128,7 @@ fn download_lyric(url: &str, song: &str) -> Result<()> {
         .unwrap()
         .as_node()
         .detach();
-
-    let article = document.select("article").unwrap().next().unwrap();
-    let article = article.as_node();
-    article.children().for_each(|c| c.detach());
-    article.append(lyric_title.to_owned());
-    article.append(lyric_data.to_owned());
-    article.append(lyric_body.to_owned());
-
-    let mut html = Vec::new();
-    article.serialize(&mut html)?;
-
-    let filename = format!("lyrics/{}.html", song.replace(" / ", " - "));
-    fs::write(filename, html)?;
-
-    Ok(())
+    lyric_body.to_owned()
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
