@@ -1,5 +1,5 @@
 use anyhow::Result;
-use kuchiki::{NodeRef, traits::TendrilSink};
+use kuchiki::{traits::TendrilSink, NodeRef};
 use std::fs::{self, File};
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -23,18 +23,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn parse_song_name(song: &str) -> (&str, &str) {
-    if let Some((title, artist)) = song.split_once(" / ") {
-        dbg!(title, artist);
-        (title, artist)
-    } else {
-        dbg!(song);
-        (song, "")
-    }
-}
-
 fn search_song(song: &str) -> Result<Option<String>> {
-    let (title, artist) = parse_song_name(song);
+    let (title, artist) = song.split_once(" / ").unwrap_or_else(|| (song, ""));
 
     let body = reqwest::blocking::Client::new()
         .get("https://utaten.com/lyric/search")
