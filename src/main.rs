@@ -21,6 +21,11 @@ fn main() -> Result<()> {
     let songs = read_lines("songs")?
         .map(|line| {
             if let Ok(song) = line {
+                let filename = lyric_filename(&song);
+                if Path::new(&filename).exists() {
+                    println!("Skipping {}, lyric already downloaded", song);
+                    return Ok(Some(filename));
+                }
                 if let Some(url) = search_song(&song)? {
                     let filename = download_lyric(&url, &song)?;
                     Ok(Some(filename))
@@ -78,6 +83,10 @@ fn search_song(song: &str) -> Result<Option<String>> {
     }
 }
 
+fn lyric_filename(song: &str) -> String {
+    format!("lyrics/{}.html", song.replace(" / ", " - "))
+}
+
 fn download_lyric(url: &str, song: &str) -> Result<String> {
     println!("Downloading lyric for {}", song);
     let body = reqwest::blocking::Client::new().get(url).send()?.text()?;
@@ -98,7 +107,7 @@ fn download_lyric(url: &str, song: &str) -> Result<String> {
     let mut html = Vec::new();
     article.serialize(&mut html)?;
 
-    let filename = format!("lyrics/{}.html", song.replace(" / ", " - "));
+    let filename = lyric_filename(song);
     fs::write(&filename, html)?;
 
     Ok(filename)
