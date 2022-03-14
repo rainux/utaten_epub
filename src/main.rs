@@ -1,31 +1,55 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use kuchiki::{traits::TendrilSink, NodeRef};
 use std::fs::{self, File};
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::process;
 
 fn main() -> Result<()> {
     fs::create_dir_all("lyrics")?;
 
-    if let Ok(lines) = read_lines("songs") {
-        for line in lines {
+    let songs = read_lines("songs")?
+        .map(|line| {
             if let Ok(song) = line {
                 if let Some(url) = search_song(&song)? {
-                    println!("{}", url);
-                    download_lyric(&url, &song)?;
+                    let filename = download_lyric(&url, &song)?;
+                    Ok(Some(filename))
                 } else {
-                    println!("Not found: {}", song);
+                    println!("Not found");
+                    Ok(None)
                 }
+            } else {
+                bail!("Invalid songs file, ensure it is UTF-8 encoded.");
             }
-        }
+        })
+        .collect::<Result<Vec<Option<_>>>>()?;
+
+    let songs = songs.into_iter().filter_map(|x| x).collect::<Vec<_>>();
+
+    if songs.is_empty() {
+        println!("\nNo songs found, please add some valid title to songs file.");
+        process::exit(1);
     }
 
-    Ok(())
+    println!("\nBuilding lyrics.epub");
+    let status = process::Command::new("pandoc")
+        .args(["--toc", "--metadata-file=lyrics.yaml", "-f", "html"])
+        .args(songs)
+        .args([
+            "--css",
+            "styles.css",
+            "--epub-embed-font=utIcon.ttf",
+            "-o",
+            "lyrics.epub",
+        ])
+        .status()?;
+
+    process::exit(status.code().unwrap_or(0));
 }
 
 fn search_song(song: &str) -> Result<Option<String>> {
+    println!("Searching for {}", song);
     let (title, artist) = song.split_once(" / ").unwrap_or_else(|| (song, ""));
-
     let body = reqwest::blocking::Client::new()
         .get("https://utaten.com/lyric/search")
         .query(&[("artist_name", artist), ("title", title)])
@@ -44,7 +68,8 @@ fn search_song(song: &str) -> Result<Option<String>> {
     }
 }
 
-fn download_lyric(url: &str, song: &str) -> Result<()> {
+fn download_lyric(url: &str, song: &str) -> Result<String> {
+    println!("Downloading lyric for {}", song);
     let body = reqwest::blocking::Client::new().get(url).send()?.text()?;
 
     let document = kuchiki::parse_html().one(body);
@@ -64,9 +89,9 @@ fn download_lyric(url: &str, song: &str) -> Result<()> {
     article.serialize(&mut html)?;
 
     let filename = format!("lyrics/{}.html", song.replace(" / ", " - "));
-    fs::write(filename, html)?;
+    fs::write(&filename, html)?;
 
-    Ok(())
+    Ok(filename)
 }
 
 fn extract_lyric_title(document: &NodeRef) -> NodeRef {
@@ -121,7 +146,7 @@ fn extract_lyric_body(document: &NodeRef) -> NodeRef {
     lyric_body.to_owned()
 }
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+fn read_lines<P>(filename: P) -> Result<io::Lines<io::BufReader<File>>>
 where
     P: AsRef<Path>,
 {
