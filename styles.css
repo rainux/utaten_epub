@@ -1,0 +1,285 @@
+@font-face {
+  font-family: utIcon;
+  src:url('/fonts/utIcon.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.page-break {
+  page-break-before: always;
+}
+
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, main, menu, nav, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section {
+  display: block;
+}
+
+a {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+a {
+  color: #343330;
+  outline: none;
+  -webkit-transition: all 0.4s ease;
+     -moz-transition: all 0.4s ease;
+      -ms-transition: all 0.4s ease;
+       -o-transition: all 0.4s ease;
+          transition: all 0.4s ease;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+}
+
+img {
+  vertical-align: bottom;
+  border-style: none;
+}
+
+a img {
+  -webkit-transition: all 0.5s ease;
+     -moz-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+       -o-transition: all 0.5s ease;
+          transition: all 0.5s ease;
+}
+
+a:hover img {
+  opacity: 0.8;
+  -ms-filter: alpha(opacity=80);
+}
+
+body {
+  width: 100%;
+  background-color: #fff;
+  color: #343330;
+  font-size: small;
+  font-family: "メイリオ", "ヒラギノ角ゴ Pro W3", "ＭＳ Ｐゴシック", sans-serif;
+  line-height: 1.5;
+}
+
+.contentsBox {
+  background: #fff;
+  border: 1px solid #bbb;
+  border-top: none;
+}
+
+.newLyricTitle {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  line-height: 1.2;
+  word-break: break-all;
+  letter-spacing: 1px;
+}
+
+.newLyricTitle__sub {
+  display: table;
+  width:  100%;
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+
+.newLyricTitle__sub > * {
+  display: table-cell;
+  direction: ltr;
+}
+
+.newLyricTitle__kana {
+  width: 100%;
+  color: #888;
+  font-size: 10px;
+  vertical-align: bottom;
+}
+
+.newLyricTitle__stateIcon {
+  padding-left: 5px;
+  font-size: 0;
+  float: right;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.newLyricTitle__stateIcon .stateIcon {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  height: auto;
+  line-height: 1;
+}
+
+.newLyricTitle__stateIcon .stateIcon + .stateIcon {
+  margin-left: 5px;
+}
+
+.newLyricTitle__main {
+  margin-top: 3px;
+  color: #2AA29A;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.newLyricTitle__subTitle {
+  margin-top: 2px;
+  color: #888;
+  display: block;
+  font-size: 12px;
+}
+
+
+.lyricData {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+}
+
+.lyricData__sub {
+  width: 100px;
+  min-height: 100px;
+  float: left;
+}
+
+.lyricData__sub img {
+  width: 100%;
+}
+
+.lyricData__main {
+  width: 410px;
+  margin-right: 160px;
+  float: right;
+}
+
+.lyricData--new {
+  display: flex;
+}
+
+.lyricData--new .lyricData__sub {
+  float: none;
+}
+
+.lyricData--new .lyricData__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lyricData__main--new {
+  margin-right: 0;
+  padding-left: 20px;
+  width: auto;
+  float: none;
+  overflow: hidden;
+}
+
+
+dl, .newLyricWork {
+  margin-bottom: 5px;
+}
+
+.newLyricWork__name,
+.newLyricWork__date,
+.newLyricWork__title,
+.newLyricWork__body {
+  margin-bottom: 1px;
+}
+
+dl dt:nth-child(1) a,.newLyricWork__name a {
+  font-size: 15px;
+  color: #0044cc;
+}
+
+dl dt:nth-child(1) a:before, .newLyricWork__name a:before {
+  margin-right: -0.1em;
+  content: "\e690  ";
+  color: #ccc;
+  font-family: utIcon;
+  vertical-align: middle;
+}
+
+dl dd:nth-child(1), .newLyricWork__date {
+  color: #888;
+}
+
+dl dt:nth-child(n+2), .newLyricWork__title {
+  font-weight: bold;
+  margin-right: 10px;
+  float: left;
+}
+
+dl dd:nth-child(n+2), .newLyricWork__body {
+  color: #888;
+  word-break: break-all;
+  overflow: hidden;
+}
+
+dl dd:nth-child(n+2) a, .newLyricWork__body a {
+  color: #0044cc;
+}
+
+
+.lyricBody {
+  letter-spacing: 1px;
+  line-height: 2.3;
+}
+
+.lyricBody {
+  background: #fff;
+  padding: 10px;
+}
+
+.lyricBody div.medium {
+  font-size: 17px;
+}
+
+.lyricBody div.medium span.ruby span.rt {
+  font-size: 11px;
+}
+
+.lyricBody div span.ruby {
+  margin-bottom: 0.55em;
+  display: inline-table;
+  position: relative;
+  vertical-align: bottom;
+}
+
+.lyricBody span.ruby span.rb {
+  display: table-row;
+  position: relative;
+  line-height: 1.2;
+}
+
+.lyricBody span.ruby span.rt {
+  display: table-header-group;
+  line-height: 1.8;
+  color: #999;
+  white-space: nowrap;
+  text-align: center;
+  letter-spacing: -0.001em;
+}
