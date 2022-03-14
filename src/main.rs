@@ -8,6 +8,16 @@ use std::process;
 fn main() -> Result<()> {
     fs::create_dir_all("lyrics")?;
 
+    if !Path::new("songs").exists() {
+        println!(
+            "This utility can download lyrics of your favorite Japanese songs from https://utaten.com/\n\
+            and build them into a EPUB e-book.\n\n\
+            Create a `songs` file with the song names, one per line, and run this utility again.\n\
+            Optionally, you can append artist name to the song name, separated by a slash."
+        );
+        process::exit(1);
+    }
+
     let songs = read_lines("songs")?
         .map(|line| {
             if let Ok(song) = line {
@@ -49,7 +59,7 @@ fn main() -> Result<()> {
 
 fn search_song(song: &str) -> Result<Option<String>> {
     println!("Searching for {}", song);
-    let (title, artist) = song.split_once(" / ").unwrap_or_else(|| (song, ""));
+    let (title, artist) = song.split_once("/").unwrap_or_else(|| (song, ""));
     let body = reqwest::blocking::Client::new()
         .get("https://utaten.com/lyric/search")
         .query(&[("artist_name", artist), ("title", title)])
