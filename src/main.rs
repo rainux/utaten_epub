@@ -1,5 +1,6 @@
 use anyhow::{bail, Result};
-use kuchiki::{traits::TendrilSink, NodeRef};
+use html5ever::{interface::QualName, local_name, namespace_url, ns};
+use kuchiki::{traits::TendrilSink, Attribute, ExpandedName, NodeRef};
 use std::fs::{self, File};
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -103,6 +104,18 @@ fn download_lyric(url: &str, song: &str) -> Result<String> {
     article.append(lyric_title);
     article.append(lyric_data);
     article.append(lyric_body);
+
+    let page_break = NodeRef::new_element(
+        QualName::new(None, ns!(html), local_name!("div")),
+        [(
+            ExpandedName::new("", local_name!("class")),
+            Attribute {
+                prefix: None,
+                value: "page-break".to_string(),
+            },
+        )],
+    );
+    article.append(page_break);
 
     let mut html = Vec::new();
     article.serialize(&mut html)?;

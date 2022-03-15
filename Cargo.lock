@@ -1226,6 +1226,7 @@ name = "utaten_epub"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "html5ever",
  "kuchiki",
  "reqwest",
 ]
