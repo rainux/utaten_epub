@@ -117,11 +117,8 @@ fn download_lyric(url: &str, song: &str) -> Result<String> {
     );
     article.append(page_break);
 
-    let mut html = Vec::new();
-    article.serialize(&mut html)?;
-
     let filename = lyric_filename(song);
-    fs::write(&filename, html)?;
+    fs::write(&filename, article.to_string())?;
 
     Ok(filename)
 }
